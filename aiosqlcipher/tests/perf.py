@@ -10,7 +10,7 @@ import time
 
 from unittest import IsolatedAsyncioTestCase as TestCase
 
-import aiosqlite
+import aiosqlcipher
 from .smoke import setup_logger
 
 TEST_DB = ":memory:"
@@ -80,7 +80,7 @@ class PerfTest(TestCase):
     async def test_connection_memory(self):
         while True:
             yield
-            async with aiosqlite.connect(TEST_DB):
+            async with aiosqlcipher.connect(TEST_DB):
                 pass
 
     @timed
@@ -89,7 +89,7 @@ class PerfTest(TestCase):
             path = tf.name
             tf.close()
 
-            async with aiosqlite.connect(path) as db:
+            async with aiosqlcipher.connect(path) as db:
                 await db.execute(
                     "create table perf (i integer primary key asc, k integer)"
                 )
@@ -98,12 +98,12 @@ class PerfTest(TestCase):
 
             while True:
                 yield
-                async with aiosqlite.connect(path):
+                async with aiosqlcipher.connect(path):
                     pass
 
     @timed
     async def test_atomics(self):
-        async with aiosqlite.connect(TEST_DB) as db:
+        async with aiosqlcipher.connect(TEST_DB) as db:
             await db.execute("create table perf (i integer primary key asc, k integer)")
             await db.execute("insert into perf (k) values (2), (3)")
             await db.commit()
@@ -115,7 +115,7 @@ class PerfTest(TestCase):
 
     @timed
     async def test_inserts(self):
-        async with aiosqlite.connect(TEST_DB) as db:
+        async with aiosqlcipher.connect(TEST_DB) as db:
             await db.execute("create table perf (i integer primary key asc, k integer)")
             await db.commit()
 
@@ -126,7 +126,7 @@ class PerfTest(TestCase):
 
     @timed
     async def test_insert_ids(self):
-        async with aiosqlite.connect(TEST_DB) as db:
+        async with aiosqlcipher.connect(TEST_DB) as db:
             await db.execute("create table perf (i integer primary key asc, k integer)")
             await db.commit()
 
@@ -139,7 +139,7 @@ class PerfTest(TestCase):
 
     @timed
     async def test_insert_macro_ids(self):
-        async with aiosqlite.connect(TEST_DB) as db:
+        async with aiosqlcipher.connect(TEST_DB) as db:
             await db.execute("create table perf (i integer primary key asc, k integer)")
             await db.commit()
 
@@ -150,7 +150,7 @@ class PerfTest(TestCase):
 
     @timed
     async def test_select(self):
-        async with aiosqlite.connect(TEST_DB) as db:
+        async with aiosqlcipher.connect(TEST_DB) as db:
             await db.execute("create table perf (i integer primary key asc, k integer)")
             for i in range(100):
                 await db.execute("insert into perf (k) values (%d)" % (i,))
@@ -163,7 +163,7 @@ class PerfTest(TestCase):
 
     @timed
     async def test_select_macro(self):
-        async with aiosqlite.connect(TEST_DB) as db:
+        async with aiosqlcipher.connect(TEST_DB) as db:
             await db.execute("create table perf (i integer primary key asc, k integer)")
             for i in range(100):
                 await db.execute("insert into perf (k) values (%d)" % (i,))
@@ -174,7 +174,7 @@ class PerfTest(TestCase):
                 assert len(await db.execute_fetchall("select i, k from perf")) == 100
 
     async def test_iterable_cursor_perf(self):
-        async with aiosqlite.connect(TEST_DB) as db:
+        async with aiosqlcipher.connect(TEST_DB) as db:
             await db.execute(
                 "create table ic_perf ("
                 "i integer primary key asc, k integer, a integer, b integer, c char(16))"

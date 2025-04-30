@@ -2,12 +2,12 @@
 # Licensed under the MIT license
 
 """
-Core implementation of aiosqlite proxies
+Core implementation of aiosqlcipher proxies
 """
 
 import asyncio
 import logging
-import sqlite3
+import sqlcipher3 as sqlite3
 from collections.abc import AsyncIterator, Generator, Iterable
 from functools import partial
 from pathlib import Path
@@ -21,7 +21,7 @@ from .cursor import Cursor
 
 __all__ = ["connect", "Connection", "Cursor"]
 
-LOG = logging.getLogger("aiosqlite")
+LOG = logging.getLogger("aiosqlcipher")
 
 
 IsolationLevel = Optional[Literal["DEFERRED", "IMMEDIATE", "EXCLUSIVE"]]
@@ -58,7 +58,7 @@ class Connection(Thread):
 
         if loop is not None:
             warn(
-                "aiosqlite.Connection no longer uses the `loop` parameter",
+                "aiosqlcipher.Connection no longer uses the `loop` parameter",
                 DeprecationWarning,
             )
 
@@ -147,7 +147,7 @@ class Connection(Thread):
 
     @contextmanager
     async def cursor(self) -> Cursor:
-        """Create an aiosqlite cursor wrapping a sqlite3 cursor object."""
+        """Create an aiosqlcipher cursor wrapping a sqlite3 cursor object."""
         return Cursor(self, await self._execute(self._conn.cursor))
 
     async def commit(self) -> None:
@@ -287,47 +287,47 @@ class Connection(Thread):
     async def set_trace_callback(self, handler: Callable) -> None:
         await self._execute(self._conn.set_trace_callback, handler)
 
-    async def iterdump(self) -> AsyncIterator[str]:
-        """
-        Return an async iterator to dump the database in SQL text format.
-
-        Example::
-
-            async for line in db.iterdump():
-                ...
-
-        """
-        dump_queue: Queue = Queue()
-
-        def dumper():
-            try:
-                for line in self._conn.iterdump():
-                    dump_queue.put_nowait(line)
-                dump_queue.put_nowait(None)
-
-            except Exception:
-                LOG.exception("exception while dumping db")
-                dump_queue.put_nowait(None)
-                raise
-
-        fut = self._execute(dumper)
-        task = asyncio.ensure_future(fut)
-
-        while True:
-            try:
-                line: Optional[str] = dump_queue.get_nowait()
-                if line is None:
-                    break
-                yield line
-
-            except Empty:
-                if task.done():
-                    LOG.warning("iterdump completed unexpectedly")
-                    break
-
-                await asyncio.sleep(0.01)
-
-        await task
+    # async def iterdump(self) -> AsyncIterator[str]:
+    #     """
+    #     Return an async iterator to dump the database in SQL text format.
+    #
+    #     Example::
+    #
+    #         async for line in db.iterdump():
+    #             ...
+    #
+    #     """
+    #     dump_queue: Queue = Queue()
+    #
+    #     def dumper():
+    #         try:
+    #             for line in self._conn.iterdump():
+    #                 dump_queue.put_nowait(line)
+    #             dump_queue.put_nowait(None)
+    #
+    #         except Exception:
+    #             LOG.exception("exception while dumping db")
+    #             dump_queue.put_nowait(None)
+    #             raise
+    #
+    #     fut = self._execute(dumper)
+    #     task = asyncio.ensure_future(fut)
+    #
+    #     while True:
+    #         try:
+    #             line: Optional[str] = dump_queue.get_nowait()
+    #             if line is None:
+    #                 break
+    #             yield line
+    #
+    #         except Empty:
+    #             if task.done():
+    #                 LOG.warning("iterdump completed unexpectedly")
+    #                 break
+    #
+    #             await asyncio.sleep(0.01)
+    #
+    #     await task
 
     async def backup(
         self,
@@ -341,7 +341,7 @@ class Connection(Thread):
         """
         Make a backup of the current database to the target database.
 
-        Takes either a standard sqlite3 or aiosqlite Connection object as the target.
+        Takes either a standard sqlite3 or aiosqlcipher Connection object as the target.
         """
         if isinstance(target, Connection):
             target = target._conn
@@ -367,7 +367,7 @@ def connect(
 
     if loop is not None:
         warn(
-            "aiosqlite.connect() no longer uses the `loop` parameter",
+            "aiosqlcipher.connect() no longer uses the `loop` parameter",
             DeprecationWarning,
         )
 

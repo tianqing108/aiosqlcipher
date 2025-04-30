@@ -4,4 +4,4 @@
 import unittest
 
 if __name__ == "__main__":
-    unittest.main(module="aiosqlite.tests", verbosity=2)
+    unittest.main(module="aiosqlcipher.tests", verbosity=2)

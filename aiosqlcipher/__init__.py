@@ -1,9 +1,9 @@
 # Copyright Amethyst Reese
 # Licensed under the MIT license
 
-"""asyncio bridge to the standard sqlite3 module"""
+"""asyncio bridge to the standard sqlcipher3 module"""
 
-from sqlite3 import (  # pylint: disable=redefined-builtin
+from sqlcipher3 import (  # pylint: disable=redefined-builtin
     DatabaseError,
     Error,
     IntegrityError,
@@ -19,12 +19,9 @@ from sqlite3 import (  # pylint: disable=redefined-builtin
     Warning,
 )
 
-__author__ = "Amethyst Reese"
-from .__version__ import __version__
 from .core import connect, Connection, Cursor
 
 __all__ = [
-    "__version__",
     "paramstyle",
     "register_adapter",
     "register_converter",

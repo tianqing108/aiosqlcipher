@@ -1,7 +1,7 @@
 # Copyright Amethyst Reese
 # Licensed under the MIT license
 
-import sqlite3
+import sqlcipher3 as sqlite3
 from collections.abc import AsyncIterator, Iterable
 from typing import Any, Callable, Optional, TYPE_CHECKING
 
